@@ -2,9 +2,22 @@ const Wappalyzer = require('wappalyzer');
 
 const TARGET = [ "WordPress", "Tumblr", "Google Analytics" ];
 
+const options = {
+  browser: 'zombie',
+  debug: false,
+  delay: 500,
+  maxDepth: 3,
+  maxUrls: 10,
+  maxWait: 5000,
+  recursive: true,
+  userAgent: 'Wappalyzer',
+  htmlMaxCols: 2000,
+  htmlMaxRows: 2000,
+};
+
 const runCleanUp = () => {
   const getApps = () => {
-    const apps = new Wappalyzer("http://google.com").wappalyzer.apps;
+    const apps = new Wappalyzer("http://google.com", options).wappalyzer.apps;
     return apps;
   };
 
