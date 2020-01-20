@@ -3,7 +3,7 @@ const Wappalyzer = require('wappalyzer');
 const router = express.Router();
 
 const options = {
-   browser: 'zombie',
+  browser: 'zombie',
   debug: false,
   delay: 500,
   maxDepth: 3,
