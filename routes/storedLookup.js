@@ -9,10 +9,10 @@ const options = {
   browser: 'zombie',
   debug: false,
   delay: 500,
-  maxDepth: 3,
-  maxUrls: 10,
+  maxDepth: 1,
+  maxUrls: 2,
   maxWait: 5000,
-  recursive: true,
+  recursive: false,
   userAgent: 'Wappalyzer',
   htmlMaxCols: 2000,
   htmlMaxRows: 2000,
@@ -24,10 +24,10 @@ router.get('/v1/', function(req, res) {
   if (url) {
         //new Wappalyzer(url, options).analyze().then(json => res.send(json)).catch(error => res.status(500).send(error))
         var scan_uuid = uuidv4();
-        var start = Date.now();
+        var start = Math.floor(Date.now()/1000);
         new Wappalyzer(url, options).analyze().then(results => 
             {
-            var finish = Date.now();
+            var finish = Math.floor(Date.now()/1000);
             //FIXME read RABBITMQ name from ENV
             amqp.connect('amqp://rabbitmq-service', function(error0, connection) {
                 if (error0) {
@@ -45,20 +45,19 @@ router.get('/v1/', function(req, res) {
                         "url": url,
                         "res":results
                         };
+                    console.log(msg);
         
                     channel.assertQueue(queue, {
                         durable: false
                     });
         
                     channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
-                    console.log(" [x] Sent %s", msg);
-                    console.log("Done, closing connection");
-                    res.status(200).send(`URL processed uuid:`);
+                    res.status(200).send(`URL processed uuid: ${scan_uuid}`);
                 });
                 setTimeout(function() {
                     connection.close();
                     console.log("Done, closing connection");
-                    }, 5000);
+                    }, options.maxWait);
             });
         }).catch(error => res.status(500).send(error))
     } else {
